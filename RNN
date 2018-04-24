@@ -1,0 +1,12 @@
+Recurrent Neural Networks works on the principal on how the short term memory of the human brain works.
+It remembers the information about the tasks or events done in the recent history and can predict what is going to be the answer to the next.
+
+There are four types of RNN
+1. One to one
+2. One to many
+3. Many to one
+4. Many to many
+
+In the case of implementing a chatbot we use Many to many approach since each question is composed to various words and each word is fed 
+as an input to a node of the neural network.
+
