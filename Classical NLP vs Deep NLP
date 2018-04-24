@@ -1,0 +1,11 @@
+We understand that there are two methods of processing natural language, 
+1. Classical approach
+2. Deep learning approach using a Recurrant Neural Network(RNN)
+
+CLASSICAL APPROACH
+ >> if/else questions (every question has a predefined answer)
+ >> Audio frequency component analysis (predifined set of frequencies provide information to all the questions asked)
+ 
+ DNLP
+ >> In this approach the neural network is trained in such a way that it is capable of finding out the answers to the questions that aren't hardcoded, it self learns.
+    
