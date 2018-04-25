@@ -1,0 +1,7 @@
+In this method, for a given text, we create a vector consisting of entries equal to the positions of occurance of the word from a vector 
+having all the words recorded in a vector.
+
+Each vector representation would consist of a SOS (Start of sentence) and EOS (End of sentence) along with the word position entries.
+
+Figuratively we only use the EOS , as only after encountering it will the model try to give the most relevant answer.
+
