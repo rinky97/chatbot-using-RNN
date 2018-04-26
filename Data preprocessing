@@ -52,4 +52,33 @@ The inputs are the inputs that will be fed to the neural network. and output is 
  *   cleaned_answers.append(clean_text()answers))
  
  
+ // now we have to remove the words that do not appear quite frequently, 
+ // WHY -- we need to optimize our training, so we need only the essential words by removing the words that appear in the corpus for less
+ // less than 5%. To do this we need to create a dictionary that maps each word to its count.Later by referring this dictionary we can 
+ // remove the less frequent words.
+ 
+ word2count = {}
+ for question in clean_questions:
+     for word in question.split():
+        if word not in word2count:
+          word2count[word] = 1
+        else
+          word2count[word] += 1
+        
+   //repeat for answer
+   
+   //creating  a threshold to filter out the words in the cleaned Q list and A list.
+   //we essentially perform two tasks here. One is tokenisation and filtering of non frequent words.We are going to create two dictionaries
+   // 1- maps all words of all questions to a unique integer, and 2- map all words of all answers to a unique integer and while creating 
+   // the two dicionaries we will check if the count of the words satisfy the threshold value.
+    
+    threshold = 20
+    questionswords2int = {}
+    word_number = 0
+    for word, count in word2count.items():
+      if count >= threshold:
+         questionswords2int[word] = word_number
+         word_number += 1
+    
+   
  
