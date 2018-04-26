@@ -90,5 +90,18 @@ The inputs are the inputs that will be fed to the neural network. and output is 
    
    tokens = ['<PAD>', '<EOS>', '<OUT>', '<SOS>']
    for token in tokens:
-    questionswords2int[token] = len(questionswords2int()
+    questionswords2int[token] = len(questionswords2int) + 1
+    for token in tokens:
+    answersords2int[token] = len(answerswords2int) + 1
+    
+    //We now need to create an inverse dicitonary that lets us to use it when we build the seq2seq model.
+    
+    answersint2word = {w_i: w for w, w_i in answerswords2int.items()}
+    
+    //now we add the EOS to the end of every answer in the clean_answers list.we are doing this as we need the EOS at the decoding layers of
+    //of the seq2seq model
+    
+    for i in range(len(clean_answers)):
+        clean_answers[i] += ' <EOS>'
+   
  
