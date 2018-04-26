@@ -104,4 +104,30 @@ The inputs are the inputs that will be fed to the neural network. and output is 
     for i in range(len(clean_answers)):
         clean_answers[i] += ' <EOS>'
    
+ // Now we are going to translate all questions and answers to integers basing on the unique tokens we had assigned in the questionswords2int dictionary
+ //we are going to loop through each Q in clean_questions and simultaneously through the dictionary quesrionswords2int to replace words 
+ // with unique tokens
  
+ questions_to_int = []
+ for question in clean_questions:
+   ints = []
+   for word in question.split():
+       if word not in questionswords2int:
+          ints.append(questionswords2int['<OUT>'])
+       else:
+          ints.append(questionsword2int[word])
+    
+    //Repeat for answers
+    
+    //We are going to sort the Q and A by the length of the Questions
+    //WHY -- because this will speed up the training and reduce the loss, because it will reduce the amount of padding during the training
+    //we need the index of the question and the question itself -- by using enumerate function
+    sorted_clean_questions = []
+    sorted_clean_answers = []
+    for length in range(1,25 + 1):
+        for i in enumerate(questions_into_int):
+          if len(i[1]) == length:
+             sorted_clean_questions.append(questions_into_int[i[0]])
+             sorted_clean_questions.append(answers_into_int[i[0]])
+ 
+// THAT'S THE END OF DATA PREPROCESSING
