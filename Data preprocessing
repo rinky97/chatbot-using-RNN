@@ -1,0 +1,55 @@
+import re // to preform filtering of text.
+import time. // to find out the training time
+import tensorflow // to perform all the deep learning tasks
+
+Importing dataset**
+
+creating a dictonary that maps each line and its id
+WHY -- when performing and preprocessing task , we need to be aware of where we are and where we want to go.
+ "present state" - imported data   "state we want to go" - a dataset that contains an input set and an output set.
+The inputs are the inputs that will be fed to the neural network. and output is the target state.
+ 
+ * id2line ={}
+ * for line in lines:
+ *   _line = line.split(' +++$+++ ')
+ *   if len(_line) == 5:        // incase the lines corpus has a field greater or less than 5 columns
+ *      id2line[_line[0]] == _line[4]
+ 
+ we now have a dictionary that has a key and a value corresponding to a line in a movie.
+ 
+ We need to keep track of the conversations fpr the training data.
+ we create a list of having all conversations
+ 
+ *conversation_ids = []
+ *for conversation in conversations[:-1]:
+ *   _conversation = conversation.split(' +++$+++ ')[-1][-1][:-1].replace("'","").replace(" ","")
+ *   _conversaton_ids.append(_conversation.split(','))
+ 
+ we are going to get the questions and answers separately
+ we need to remember that we need two huge datasets , one for questions and other for answers, with the same size of the datasets, 
+ so we need to create two separate lists of questions and answers.
+ answer to index i should be the answer to the question in index i .
+ TO identify which conversations are questions and which are answers, we have the conversations_ids list which tells that the first
+ id of an index is the Q and the second is the A.
+ So we take alternate indices for Q and A, we create two separate lists, we get the key elements of the questions from the conversations_ids
+ list and to get the line corresponding to the key we using our dictionary.
+ 
+ *quesions = []
+ *answers = []
+ *for conversation in conversations_ids:   //looping over the list
+ *    for i in range(len(conversation) - 1):   // looping over the dictionary to pick sentences to corresponding key ids
+ *        questions.append(id2line[conversation[i]])
+ *        answers.append(id2line[conversation[i+1]])
+ 
+ // the clean_text function is used to remove all the complicated words and special symbols from the text using the 're' library,
+ //now apply this function to the Q and A list
+ 
+ *cleaned_questions = []
+ *cleaned_ answers = []
+ *for question in questions:
+ *   cleaned_questions.append(clean_text(question))
+ *for answer in answers:
+ *   cleaned_answers.append(clean_text()answers))
+ 
+ 
+ 
