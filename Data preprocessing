@@ -79,6 +79,16 @@ The inputs are the inputs that will be fed to the neural network. and output is 
       if count >= threshold:
          questionswords2int[word] = word_number
          word_number += 1
+         
+    // Repeat the same to answer, by giving the words a unique interger, we are tokenising it.
     
+   //adding the last tokens to our two tokenised dictionaries, they are SOS, EOS, PAD, OUT, which are used for encodind and decoding
+   // SOS - start of string
+   // EOS - end of string
+   // PAD - for unequal question and answer lengths.
+   // OUT - all the words that were filtered out in the recent dicitonaries.
    
+   tokens = ['<PAD>', '<EOS>', '<OUT>', '<SOS>']
+   for token in tokens:
+    questionswords2int[token] = len(questionswords2int()
  
