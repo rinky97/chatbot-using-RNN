@@ -36,3 +36,101 @@ def preprocess_targets(targets//inputs, word2int // this dic maps tokens to inte
     right_side = tf.strided_slice(targets, [0,0], [batch_size, -1], [1,1]) // the right side contains all the tokens except the last one as for a decoder we don't need a EOS, stride lets to take a part of the input
     preprocessed_targets = tf.concat([left_side, right_side], 1)
     return preprocessed_targets
+    
+    // Now we create the architecture of the seq2seq model ie first encoder RNN layer
+    //and also create the architecture of the decoder RNN layer
+    
+    def encoder_rnn(rnn_inputs, rnn_size, num_layers, keep_prob, sequence_length): //sequence length is the length of the question in each batch.
+    lstm = tf.contrib.rnn.BasicLSTMCell(rnn_size) //creating an object of lstm cell class
+    lstm_dropout = tf.contrib.rnn.DropoutWrapper(lstm, input_keep_prob = keep_prob)// lstm with dropout applied
+    encoder_cell = tf.contrib.rnn.MultiRNNCell([lstm_dropout] * num_layers) // we make number of layers to make the encoder cell, it is composed of severel lstm cells
+    encoder_output, encoder_state = tf.nn.bidirectional_dynamic_rnn(cell_fw = encoder_cell, 
+                                                                    cell_bw = encoder_cell,
+                                                                    sequence_length = sequence_length,
+                                                                    inputs = rnn_inputs,
+                                                                    dtype = tf.float32)
+    return encoder_state
+
+//We are only concerned with the encoder state which goes as an input to the decoder state. and what we need from a decoder is the decoder output.
+
+//We need to decoding the training set.
+//EMBEDDING -- it is a mapping from a word to a vectors of real number , each encoding uniquely
+
+# Decoding the training set
+def decode_training_set(encoder_state //the input to the decoder state, decoder_cell//cell in the RNN of the decoder, decoder_embedded_input// input on which we apply embedding, sequence_length, decoding_scope//an advanced datastructure that will wrap tensorflow variables, output_function //function used to return the decoder outputs in the end, keep_prob, batch_size):
+    attention_states = tf.zeros([batch_size, 1// #colums, decoder_cell.output_size]) //3d matrices containing only 0s
+    attention_keys //keys to be compared to the target state, attention_values //values used to construct the context vectors .Contxt is returned by encoder and used by decoder as first element of decoding , attention_score_function// similarity bw keys and target states, attention_construct_function// used to build the attention state = tf.contrib.seq2seq.prepare_attention (attention_states, attention_option = "bahdanau", num_units = decoder_cell.output_size)
+    training_decoder_function = tf.contrib.seq2seq.attention_decoder_fn_train(encoder_state[0]//from previous function,  //function taht will decode the training state
+                                                                              attention_keys,
+                                                                              attention_values,
+                                                                              attention_score_function,
+                                                                              attention_construct_function,
+                                                                              name = "attn_dec_train"// name scope for the decoder)
+    decoder_output, decoder_final_state, decoder_final_context_state = tf.contrib.seq2seq.dynamic_rnn_decoder(decoder_cell,
+                                                                                                               training_decoder_function,
+                                                                                                              decoder_embedded_input,
+                                                                                                              sequence_length,
+                                                                                                              scope = decoding_scope)
+    decoder_output_dropout = tf.nn.dropout(decoder_output, keep_prob) // decoder data with dropout applied
+    return output_function(decoder_output_dropout)
+    
+    # now we need to perform the decoding for the test / validation set.// to improve the accuracy
+    //Attention variables are most important to forward propogate the signals
+    def decode_test_set(encoder_state, decoder_cell, decoder_embeddings_matrix, sos_id, eos_id, maximum_length, num_words, decoding_scope, output_function, keep_prob, batch_size):
+    attention_states = tf.zeros([batch_size, 1, decoder_cell.output_size])
+    attention_keys, attention_values, attention_score_function, attention_construct_function = tf.contrib.seq2seq.prepare_attention(attention_states, attention_option = "bahdanau", num_units = decoder_cell.output_size)
+    test_decoder_function = tf.contrib.seq2seq.attention_decoder_fn_inference// cause after training we need to infer the answers for new qustions(output_function,
+                                                                              encoder_state[0],
+                                                                              attention_keys,
+                                                                              attention_values,
+                                                                              attention_score_function,
+                                                                              attention_construct_function,
+                                                                              decoder_embeddings_matrix,
+                                                                              sos_id,
+                                                                              eos_id,
+                                                                              maximum_length,
+                                                                              num_words,
+                                                                              name = "attn_dec_inf")
+    test_predictions, decoder_final_state, decoder_final_context_state = tf.contrib.seq2seq.dynamic_rnn_decoder(decoder_cell,
+                                                                                                                test_decoder_function,
+                                                                                                                scope = decoding_scope)
+    return test_predictions
+    
+    
+    /now we need to create the RNN of the decoder
+    
+    # Creating the Decoder RNN
+def decoder_rnn(decoder_embedded_input, decoder_embeddings_matrix, encoder_state, num_words, sequence_length, rnn_size, num_layers, word2int, keep_prob, batch_size):
+    with tf.variable_scope("decoding") as decoding_scope:
+        lstm = tf.contrib.rnn.BasicLSTMCell(rnn_size)
+        lstm_dropout = tf.contrib.rnn.DropoutWrapper(lstm, input_keep_prob = keep_prob)
+        decoder_cell = tf.contrib.rnn.MultiRNNCell([lstm_dropout] * num_layers)
+        weights = tf.truncated_normal_initializer(stddev = 0.1)
+        biases = tf.zeros_initializer()
+        output_function = lambda x: tf.contrib.layers.fully_connected(x,
+                                                                      num_words,
+                                                                      None,
+                                                                      scope = decoding_scope,
+                                                                      weights_initializer = weights,
+                                                                      biases_initializer = biases)
+        training_predictions = decode_training_set(encoder_state,
+                                                   decoder_cell,
+                                                   decoder_embedded_input,
+                                                   sequence_length,
+                                                   decoding_scope,
+                                                   output_function,
+                                                   keep_prob,
+                                                   batch_size)
+        decoding_scope.reuse_variables()
+        test_predictions = decode_test_set(encoder_state,
+                                           decoder_cell,
+                                           decoder_embeddings_matrix,
+                                           word2int['<SOS>'],
+                                           word2int['<EOS>'],
+                                           sequence_length - 1,
+                                           num_words,
+                                           decoding_scope,
+                                           output_function,
+                                           keep_prob,
+                                           batch_size)
+    return training_predictions, test_predictions
