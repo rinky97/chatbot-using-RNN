@@ -1,0 +1,38 @@
+//This section deals with the various functions that help us implement the seq2seq model, we are buildind the architecture of the chatbot.
+//
+
+
+
+---Basics knowledge about Tensorflow ----
+1.In tf all variables are used in tensors.
+2.Tensors are like an advanced arrays , more advanced than the numpy array, which are of single type.
+3. It allows the fastest computation in the deep neural networks.
+--PLACEHOLDERS--
+All the variables used in tensors must be defined in what we call placeholders. Placeholders are like an advnced data structue that can 
+many tensors.
+
+//This function creates a placeholder for the inputs and the targets for any deep neural network
+//This function takes in an input and output and for each of them it creates placeholders.
+// The keep_prob placeholder is  a parameter that is used to control the dropout rate.
+//DROPOUT RATE--- It is the rate of the neurons you choose to override during one iteration in the training. Usually 20, so tha twe deac
+you deativate the training rate by 20%
+
+def model_inputs():
+  inputs = tf.placeholder(tf.int32,[None, None],name = 'input') //type of the data//dimensions of the matrix of the input data (2-d)//name of the data
+  targets = tf.placeholder(tf.int32,[None, None],name = 'target')
+  lr = tf.placeholder(tf.float32,name = 'learnin_rate')
+  keep_prob = tf.placeholder(tf.int32,[None, None],name = 'keep_prob')
+  return inputs, targets, lr, keep_prob
+  
+  //Preprocessing the targets
+  //WHY-- because the decoder will only accept a certain format of the targets. The decoder gets to the targets and in order for 
+  // for the targets to be accepted by the neural network, we need a special format.
+  //This format is two- fold,The target must be into batches. The RNN doesn't accept single answers.
+  For example the RNN will not take a single answer list, but will take the answers in a batch of size for example 10
+  // Therefore we do two things, creating batches and adding and SOS for each answer list.Each target eill start eith SOS
+  
+def preprocess_targets(targets//inputs, word2int // this dic maps tokens to integers , batch_size):
+    left_side = tf.fill([batch_size, 1], word2int['<SOS>']) // fill is used to fill the sos tokens with arguements == dimensions of the mateix
+    right_side = tf.strided_slice(targets, [0,0], [batch_size, -1], [1,1]) // the right side contains all the tokens except the last one as for a decoder we don't need a EOS, stride lets to take a part of the input
+    preprocessed_targets = tf.concat([left_side, right_side], 1)
+    return preprocessed_targets
