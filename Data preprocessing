@@ -49,7 +49,7 @@ The inputs are the inputs that will be fed to the neural network. and output is 
  *for question in questions:
  *   cleaned_questions.append(clean_text(question))
  *for answer in answers:
- *   cleaned_answers.append(clean_text()answers))
+ *   cleaned_answers.append(clean_text(answers)))
  
  
  // now we have to remove the words that do not appear quite frequently, 
