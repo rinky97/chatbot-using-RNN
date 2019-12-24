@@ -1,5 +1,5 @@
 In this method, for a given text, we create a vector consisting of entries equal to the positions of occurance of the word from a vector 
-having all the words recorded in a vector.
+having all the words recorded in that vector.
 
 Each vector representation would consist of a SOS (Start of sentence) and EOS (End of sentence) along with the word position entries.
 
